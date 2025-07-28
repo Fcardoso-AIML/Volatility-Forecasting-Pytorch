@@ -1,0 +1,75 @@
+Folder PATH listing
+Volume serial number is 6EF8-8196
+C:.
+¦   .gitignore
+¦   main.py
+¦   README.md
+¦   requirements.txt
+¦   structure.txt
+¦   vix_dashboard.py
+¦   
++---config
+¦   ¦   settings.py
+¦   ¦   __init__.py
+¦   ¦   
+¦   +---__pycache__
+¦           settings.cpython-311.pyc
+¦           __init__.cpython-311.pyc
+¦           
++---data
+¦   ¦   config.yaml
+¦   ¦   loader.py
+¦   ¦   raw.py
+¦   ¦   
+¦   +---__pycache__
+¦           loader.cpython-311.pyc
+¦           raw.cpython-311.pyc
+¦           
++---notebooks
+¦       1. data_exploration.ipynb
+¦       
++---results
+¦       complete_pipeline_and_training.json
+¦       complete_pipeline_heavy_model_v1.json
+¦       complete_pipeline_light_model_v1.json
+¦       complete_pipeline_quick_test_v1.json
+¦       lstm_training_heavy_model_v1.json
+¦       lstm_training_heavy_model_v1.png
+¦       lstm_training_light_model_v1.json
+¦       lstm_training_light_model_v1.png
+¦       lstm_training_quick_test_v1.json
+¦       lstm_training_quick_test_v1.png
+¦       lstm_training_results.json
+¦       lstm_training_results.png
+¦       pipeline_config.json
+¦       pipeline_config_heavy_model_v1.json
+¦       pipeline_config_light_model_v1.json
+¦       pipeline_config_quick_test_v1.json
+¦       
++---src
+¦   ¦   __init__.py
+¦   ¦   
+¦   +---models
+¦   ¦   ¦   dataset.py
+¦   ¦   ¦   LSTM.py
+¦   ¦   ¦   splitter.py
+¦   ¦   ¦   
+¦   ¦   +---__pycache__
+¦   ¦           dataset.cpython-311.pyc
+¦   ¦           LSTM.cpython-311.pyc
+¦   ¦           splitter.cpython-311.pyc
+¦   ¦           
+¦   +---pipeline
+¦   ¦   ¦   data_pipeline.py
+¦   ¦   ¦   training_pipeline.py
+¦   ¦   ¦   
+¦   ¦   +---__pycache__
+¦   ¦           data_pipeline.cpython-311.pyc
+¦   ¦           training_pipeline.cpython-311.pyc
+¦   ¦           
+¦   +---__pycache__
+¦           __init__.cpython-311.pyc
+¦           
++---__pycache__
+        vix_dashboard.cpython-311.pyc
+        

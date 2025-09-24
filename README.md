@@ -97,7 +97,7 @@ The interactive dashboard provides comprehensive model analysis:
   ![Individual Model Analysis](screenshots/Individual_Model_Analysis.png)
 
 - **Model Comparison View**  
-  ![Model Comparison](screenshots/Model_Comparison.png)
+  ![Model Comparison](screenshots/Model_Comparision.png)
 
 - **Model Visualizations**  
   ![Model Visualizations](screenshots/Model_Visualizations.png)

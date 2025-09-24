@@ -93,17 +93,17 @@ Explore:
 
 The interactive dashboard provides comprehensive model analysis:
 
-**Individual Model Analysis**
-![Individual Model Analysis](C:\Users\Francisco Cardoso\OneDrive\Ambiente de Trabalho\Projects\Volatility Forecasting\screenshots\Individual_Model_Analysis.png)
+- **Individual Model Analysis**  
+  ![Individual Model Analysis](screenshots/Individual_Model_Analysis.png)
 
-**Model Comparison View** 
-![Model Comparison](C:\Users\Francisco Cardoso\OneDrive\Ambiente de Trabalho\Projects\Volatility Forecasting\screenshots\Model_Comparision.png)
+- **Model Comparison View**  
+  ![Model Comparison](screenshots/Model_Comparison.png)
 
-**Model Visualizations**
-![Model Visualizations](C:\Users\Francisco Cardoso\OneDrive\Ambiente de Trabalho\Projects\Volatility Forecasting\screenshots\Model_Visualizations.png)
+- **Model Visualizations**  
+  ![Model Visualizations](screenshots/Model_Visualizations.png)
 
-**Performance Overview**
-![Performance Overview](C:\Users\Francisco Cardoso\OneDrive\Ambiente de Trabalho\Projects\Volatility Forecasting\screenshots\Overview.png)
+- **Performance Overview**  
+  ![Performance Overview](screenshots/Overview.png)
 
 ## Features Engineered
 

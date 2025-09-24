@@ -1,28 +1,27 @@
-# VIX Direction Prediction with Deep Learning 🧠⚡
+# VIX Direction Prediction with Deep Learning
 
-This project forecasts the **daily directional movement of the VIX (Volatility Index)** using an LSTM neural network trained on engineered features from SPY, QQQ, and VIX data.
+**Developed by Francisco Cardoso**  
+**MSc in Mathematics Economics, University of Copenhagen**
+
+This project forecasts the **daily directional movement of the VIX (Volatility Index)** using an **LSTM neural network with a multi-layer perceptron (MLP) classifier head**, trained on engineered features from SPY, QQQ, and VIX data.
 
 It features a full pipeline for:
-- 🧹 Data loading and feature engineering
-- 🪟 Rolling-window time series cross-validation
-- 🧠 LSTM model training and evaluation
-- 📊 Interactive model performance dashboard via Streamlit
-- 🔁 Versioned result tracking and comparison
+* Data loading and feature engineering
+* Rolling-window time series cross-validation
+* LSTM + MLP classifier training and evaluation
+* Interactive model performance dashboard via Streamlit
+* Versioned result tracking and comparison
 
----
-
-## 💼 Motivation
+## Motivation
 
 Volatility forecasting plays a crucial role in trading, hedging, and risk management. This project demonstrates:
-- Deep learning applied to financial time series
-- Robust validation under realistic constraints (no future leakage)
-- Evaluation beyond accuracy: class imbalance handling, baseline comparisons, visual diagnostics
+* Deep learning applied to financial time series
+* Robust validation under realistic constraints (no future leakage)
+* Evaluation beyond accuracy: class imbalance handling, baseline comparisons, visual diagnostics
 
 Ideal for showcasing applied machine learning + finance skills to employers or collaborators.
 
----
-
-## 🔧 Project Structure
+## Project Structure
 
 ```
 .
@@ -44,33 +43,27 @@ Ideal for showcasing applied machine learning + finance skills to employers or c
 └── results/               # Auto-saved JSON results, plots, and summaries
 ```
 
----
+## How to Run
 
-## 🚀 How to Run
-
-### 1. 📦 Install Requirements
+### 1. Install Requirements
 
 ```bash
 pip install -r requirements.txt
 ```
 
-(Or use `conda` or `venv` as preferred.)
-
----
-
-### 2. 🧪 Run a Quick Test (for speed/debugging)
+### 2. Run a Quick Test (for speed/debugging)
 
 ```bash
 python main.py --test
 ```
 
-### 3. 🏭 Run the Full Production Pipeline
+### 3. Run the Full Production Pipeline
 
 ```bash
 python main.py --prod
 ```
 
-You can also run:
+Or use a preset:
 
 ```bash
 python main.py --config development
@@ -78,89 +71,79 @@ python main.py --config heavy_model
 python main.py --config light_model
 ```
 
-This generates:
-- `results/pipeline_config_<config>_vX.json`
-- `results/lstm_training_<config>_vX.json`
-- `results/complete_pipeline_<config>_vX.json`
-- `results/lstm_training_<config>_vX.png`
+Generates:
+* `results/pipeline_config_<config>_vX.json`
+* `results/lstm_training_<config>_vX.json`
+* `results/complete_pipeline_<config>_vX.json`
+* `results/lstm_training_<config>_vX.png`
 
----
-
-### 4. 📊 Launch the Interactive Dashboard
+### 4. Launch the Interactive Dashboard
 
 ```bash
-streamlit run vix_dashboard.py
+python -m streamlit run vix_dashboard.py
 ```
 
 Explore:
-- Model comparison across configurations
-- Fold-by-fold metrics
-- Visual diagnostics and PNG charts
-- Raw JSON results for each run
+* Model comparison across configurations
+* Fold-by-fold metrics
+* Visual diagnostics and PNG charts
+* Raw JSON results for each run
 
----
+## Dashboard Screenshots
 
-## 📉 Features Engineered
+The interactive dashboard provides comprehensive model analysis:
+
+**Individual Model Analysis**
+![Individual Model Analysis](C:\Users\Francisco Cardoso\OneDrive\Ambiente de Trabalho\Projects\Volatility Forecasting\screenshots\Individual_Model_Analysis.png)
+
+**Model Comparison View** 
+![Model Comparison](C:\Users\Francisco Cardoso\OneDrive\Ambiente de Trabalho\Projects\Volatility Forecasting\screenshots\Model_Comparision.png)
+
+**Model Visualizations**
+![Model Visualizations](C:\Users\Francisco Cardoso\OneDrive\Ambiente de Trabalho\Projects\Volatility Forecasting\screenshots\Model_Visualizations.png)
+
+**Performance Overview**
+![Performance Overview](C:\Users\Francisco Cardoso\OneDrive\Ambiente de Trabalho\Projects\Volatility Forecasting\screenshots\Overview.png)
+
+## Features Engineered
 
 The model uses:
-- Daily returns of SPY, QQQ, and VIX
-- 5-day rolling volatilities
-- QQQ–SPY return spread
-- Discrete directional target for VIX (`Down`, `Neutral`, `Up`) based on ±1% thresholds
+* Daily returns of SPY, QQQ, and VIX
+* 5-day rolling volatilities
+* QQQ–SPY return spread
+* Discrete directional target for VIX (`Down`, `Neutral`, `Up`) based on ±1% thresholds
 
----
+## Model Details
 
-## 🧠 Model Details
+* **Backbone:** PyTorch LSTM with 2 stacked layers (hidden size 64) + dropout
+* **Head:** Multi-layer perceptron (MLP) classifier
+   * Hidden layers: 64 → 32 → 16 → 3
+   * Activations: ReLU + Dropout
+   * Final layer outputs logits for 3 classes (Down, Neutral, Up)
+* **Training:** Class imbalance handled via weighted loss
+* **Validation:** Rolling window splitter for realistic cross-validation
+* **Evaluation:** Compared against a 33.3% random baseline
+* **Analysis:** Accuracy, confusion matrix, loss trends, fold stats
 
-- PyTorch LSTM with 2 layers, dropout, and MLP classifier head
-- Class imbalance handled via weighted loss
-- Rolling window splitter for realistic cross-validation
-- Model performance compared to a 33.3% random baseline
-- Full analysis includes accuracy, confusion matrix, loss trends, and fold stats
+## Example Results
 
----
+| Config        | Version | Accuracy | Improvement | Date       |
+|---------------|---------|----------|-------------|------------|
+| production    | v4      | 48.5%    | +45.7%      | 2025-07-27 |
+| light_model   | v2      | 42.1%    | +26.3%      | 2025-07-25 |
+| heavy_model   | v1      | 51.3%    | +54.1%      | 2025-07-24 |
 
-## 📁 Example Results
+See `/results` for JSON logs and PNG plots.
 
-```
-Config        | Version | Accuracy   | Improvement  | Date
----------------------------------------------------------------
-production    | v4      | 48.5%      | +45.7%       | 2025-07-27
-light_model   | v2      | 42.1%      | +26.3%       | 2025-07-25
-heavy_model   | v1      | 51.3%      | +54.1%       | 2025-07-24
-```
+## Requirements
 
-Check `/results` folder for full JSON logs and PNG plots.
+* Python 3.9+
+* yfinance, pandas, numpy
+* scikit-learn
+* matplotlib, seaborn
+* torch
+* streamlit, plotly
 
----
-
-## ✅ Requirements
-
-- Python 3.9+
-- yfinance
-- pandas, numpy
-- scikit-learn
-- matplotlib, seaborn
-- torch
-- streamlit
-- plotly
-
-Install with:
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## 📘 License
+## License
 
 MIT License — feel free to fork, learn, adapt, and use.
-
----
-
-## 💡 Future Ideas
-
-- Add GARCH or Transformer baselines
-- Integrate backtesting and trading signal simulation
-- Expand to other volatility indexes (e.g., VXN, VXO)

@@ -315,14 +315,12 @@ def main(config_name='development'):
     print("VIX DIRECTION PREDICTION PIPELINE")
     print("=" * 80)
     
-    # Show previous results summary
     create_results_summary()
     
-    # Get configuration
     pipeline_config, training_config = get_config(config_name)
     print_config(config_name)
     
-    # Step 1: Data Pipeline
+    # Data Pipeline
     print(f"\n Running data pipeline with '{config_name}' config...")
     data, feature_cols, target_col, pipeline_output = run_data_pipeline(pipeline_config)
     
@@ -337,14 +335,14 @@ def main(config_name='development'):
     if recommended_config != config_name:
         print(f"\n Recommendation: With {total_sequences} sequences, consider using '{recommended_config}' config")
     
-    # Step 2: Prepare training configuration
+    # Prepare training configuration
     final_training_config = prepare_training_config(pipeline_config, training_config)
     
-    # Step 3: Training Pipeline  
+    # Training Pipeline  
     print(f"\n Running training pipeline with '{config_name}' config...")
     lstm_results = run_training_pipeline(data, feature_cols, target_col, final_training_config, config_name)
     
-    # Step 4: Save Combined Results with versioned names
+    # Save Combined Results with versioned names
     print(f"\n Saving results for '{config_name}' config...")
     saved_files = save_combined_results(pipeline_output, lstm_results, config_name)
     
@@ -352,7 +350,7 @@ def main(config_name='development'):
         print(" Failed to save results.")
         return False
     
-    # Step 5: Analysis and Recommendations
+    # Analysis and Recommendations
     print(f"\n Analyzing '{config_name}' results...")
     recommendations = get_training_recommendations(lstm_results)
     print_final_summary(lstm_results, recommendations, saved_files, config_name)

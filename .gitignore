@@ -35,3 +35,7 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Personal local-only stuff
+tests/
+testing.ipynb

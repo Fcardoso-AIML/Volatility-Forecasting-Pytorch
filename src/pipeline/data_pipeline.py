@@ -141,7 +141,6 @@ def create_rolling_windows_analysis(data, config, feature_cols, target_col):
             horizon=config['horizon']
         )
         
-        # Get class weights
         class_weights = train_dataset.get_class_weights()
         
         print(f"    Train sequences: {len(train_dataset)}")
@@ -150,7 +149,6 @@ def create_rolling_windows_analysis(data, config, feature_cols, target_col):
         total_train_sequences += len(train_dataset)
         total_test_sequences += len(test_dataset)
         
-        # Store pipeline info
         pipeline_info.append({
             'fold': fold,
             'window_info': {
@@ -206,7 +204,6 @@ def generate_pipeline_summary(pipeline_info, config, feature_cols, target_col,
     print(f"   Window overlap: {config['overlap_ratio']*100:.0f}%")
     print(f"   Train/test ratio: {config['train_ratio']*100:.0f}%/{(1-config['train_ratio'])*100:.0f}%")
     
-    # Analyze target distribution across all windows
     all_train_targets = []
     all_test_targets = []
     for info in pipeline_info:
@@ -222,7 +219,6 @@ def generate_pipeline_summary(pipeline_info, config, feature_cols, target_col,
     print(f"   Training: Down={train_dist.get(0,0)}, Neutral={train_dist.get(1,0)}, Up={train_dist.get(2,0)}")
     print(f"   Testing:  Down={test_dist.get(0,0)}, Neutral={test_dist.get(1,0)}, Up={test_dist.get(2,0)}")
     
-    # Calculate average class weights
     avg_weights = {}
     for class_id in [0, 1, 2]:
         weights = [info['class_weights'].get(float(class_id), 0) for info in pipeline_info]
@@ -234,7 +230,6 @@ def generate_pipeline_summary(pipeline_info, config, feature_cols, target_col,
     print(f"   Neutral (1): {avg_weights.get(1, 0):.2f} <- Rare signals get higher weight!")
     print(f"   Up (2): {avg_weights.get(2, 0):.2f}")
     
-    # Save pipeline configuration
     pipeline_output = save_pipeline_config(pipeline_info, config, feature_cols, target_col, 
                                          total_train_sequences, total_test_sequences, avg_weights)
     
@@ -262,7 +257,6 @@ def save_pipeline_config(pipeline_info, config, feature_cols, target_col,
     
     os.makedirs('results', exist_ok=True)
 
-    # Fix the pipeline_info data structure for JSON serialization
     cleaned_pipeline_info = []
     for info in pipeline_info:
         cleaned_info = {

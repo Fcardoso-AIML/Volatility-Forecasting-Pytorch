@@ -1,13 +1,10 @@
 import numpy as np
 import torch
-from sklearn.preprocessing import StandardScaler
 from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
 
 import pandas as pd
 
 
-# 2. Updated Dataset class
 class TimeSeriesWindowDataset(Dataset):
     def __init__(self, features_df, target_series, seq_len, horizon):
         self.X = features_df.values.astype(np.float32)
@@ -30,7 +27,6 @@ class TimeSeriesWindowDataset(Dataset):
         class_counts = Counter(self.y)
         total_samples = len(self.y)
         
-        # Calculate inverse frequency weights
         weights = {}
         for class_id, count in class_counts.items():
             weights[class_id] = total_samples / (len(class_counts) * count)

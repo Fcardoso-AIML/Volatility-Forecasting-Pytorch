@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from typing import Iterator, Tuple
-class RollingWindowSplitter:
+class RollingWindowSplitter: #splits, handles overlap and scales data
     def __init__(self, 
                  data: pd.DataFrame, 
                  n_splits: int = 3, 
@@ -38,18 +38,16 @@ class RollingWindowSplitter:
         """
         total_length = len(self.data)
         
-        # Calculate optimal window size (use 70-80% of total data per window)
+        # optimal window size 
         window_size = max(self.min_window_size, int(total_length * 0.75))
         
-        # Calculate step size for overlapping windows
+        # step size for overlapping windows
         if self.n_splits == 1:
-            step_size = 0  # Single window, no stepping
+            step_size = 0  
         else:
-            # Distribute windows with overlap across the data
             total_steps = total_length - window_size
             step_size = max(1, total_steps // (self.n_splits - 1))
             
-            # Adjust step size to achieve desired overlap
             target_step = int(window_size * (1 - self.overlap_ratio))
             step_size = min(step_size, target_step)
 
@@ -65,28 +63,24 @@ class RollingWindowSplitter:
                 end = total_length
                 start = max(0, end - window_size)
             
-            # Skip if window is too small or we've created enough windows
+            # Skip if window is too small 
             if end - start < self.min_window_size:
                 print(f"Skipping window {i}: too small ({end - start} < {self.min_window_size})")
                 continue
                 
-            # Extract window
             window = self.data.iloc[start:end].copy()
             
-            # Split into train/test chronologically within window
             train_end = int(len(window) * self.train_ratio)
             train_df = window.iloc[:train_end].copy()
             test_df = window.iloc[train_end:].copy()
             
-            # Validate minimum sizes for sequences
-            min_train_days = 20  # Need enough for meaningful patterns
-            min_test_days = 8    # Need enough for validation
+            min_train_days = 20  
+            min_test_days = 8    
             
             if len(train_df) < min_train_days or len(test_df) < min_test_days:
                 print(f"Skipping window {i}: insufficient data (train={len(train_df)}, test={len(test_df)})")
                 continue
             
-            # Create window metadata
             window_info = {
                 'window_id': windows_created,
                 'start_idx': start,
@@ -116,14 +110,12 @@ class RollingWindowSplitter:
         """
         scaler = self.scaler_type()
         
-        # Fit scaler on training data only (critical for preventing data leakage)
         scaled_train = pd.DataFrame(
             scaler.fit_transform(train),
             index=train.index,
             columns=train.columns
         )
         
-        # Transform test data using the fitted scaler
         scaled_test = pd.DataFrame(
             scaler.transform(test),
             index=test.index,

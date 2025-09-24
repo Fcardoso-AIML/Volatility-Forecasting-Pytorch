@@ -11,7 +11,6 @@ import glob
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.join(BASE_DIR, 'src'))
 
-# Import LSTM training function
 from src.models.LSTM import run_lstm_training, DEFAULT_CONFIG
 
 
@@ -29,19 +28,16 @@ def get_next_version_number(config_name, results_dir='results'):
     if not os.path.exists(results_dir):
         return 1
     
-    # Look for existing training result files with this config name
     pattern = os.path.join(results_dir, f'lstm_training_{config_name}_v*.json')
     existing_files = glob.glob(pattern)
     
     if not existing_files:
         return 1
     
-    # Extract version numbers and find the highest
     version_numbers = []
     for filepath in existing_files:
         filename = os.path.basename(filepath)
         try:
-            # Extract version number from filename like "lstm_training_heavy_model_v3.json"
             version_part = filename.split('_v')[1].split('.')[0]
             version_numbers.append(int(version_part))
         except (IndexError, ValueError):
@@ -75,7 +71,6 @@ def run_training_pipeline(data, feature_cols, target_col, training_config, confi
     version = get_next_version_number(config_name)
     print(f"Saving results as version {version} for config '{config_name}'")
     
-    # Add config info to training config for the LSTM module to use
     enhanced_training_config = training_config.copy()
     enhanced_training_config['config_name'] = config_name
     enhanced_training_config['version'] = version
@@ -125,7 +120,6 @@ def prepare_training_config(pipeline_config, custom_training_config=None):
         'days': pipeline_config['days']
     })
     
-    # Apply any custom overrides
     if custom_training_config:
         training_config.update(custom_training_config)
     
@@ -156,7 +150,6 @@ def get_training_recommendations(lstm_results):
     
     recommendations = []
     
-    # Performance-based recommendations
     if avg_accuracy < 0.35:  # Less than 35% accuracy (barely above random)
         recommendations.extend([
             f'Low accuracy for {config_name} v{version}. Try:',

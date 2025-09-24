@@ -45,7 +45,6 @@ class VIXPredictor(nn.Module):
         self.num_layers = num_layers
         self.num_classes = num_classes
         
-        # LSTM layers
         self.lstm = nn.LSTM(
             input_size=input_size,
             hidden_size=hidden_size,
@@ -54,7 +53,6 @@ class VIXPredictor(nn.Module):
             dropout=dropout if num_layers > 1 else 0
         )
         
-        # Classification head (BatchNorm removed to prevent batch size errors)
         self.classifier = nn.Sequential(
             nn.Linear(hidden_size, 32),
             nn.ReLU(),
@@ -66,17 +64,16 @@ class VIXPredictor(nn.Module):
         )
         
     def forward(self, x):
-        # Initialize hidden and cell states
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         
-        # LSTM forward pass
+        # FP
         lstm_out, _ = self.lstm(x, (h0, c0))
         
-        # Take the output from the last time step
+        # Last output
         last_output = lstm_out[:, -1, :]
         
-        # Classification
+        # Classify last output
         logits = self.classifier(last_output)
         
         return logits
@@ -144,37 +141,28 @@ def train_model(model, train_loader, criterion, optimizer, device, num_epochs=50
         total_predictions = 0
         
         for batch_idx, (data, targets) in enumerate(train_loader):
-            # Move to device
             data, targets = data.to(device), targets.long().to(device)
             
-            # Zero gradients
             optimizer.zero_grad()
             
-            # Forward pass
             outputs = model(data)
             loss = criterion(outputs, targets)
             
-            # Backward pass
             loss.backward()
             
-            # Gradient clipping (helps with LSTM training)
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             
-            # Update weights
             optimizer.step()
             
-            # Statistics
             epoch_loss += loss.item()
             _, predicted = torch.max(outputs.data, 1)
             total_predictions += targets.size(0)
             correct_predictions += (predicted == targets).sum().item()
         
-        # Calculate average loss and accuracy
         avg_loss = epoch_loss / len(train_loader)
         accuracy = 100 * correct_predictions / total_predictions
         train_losses.append(avg_loss)
         
-        # Print progress
         if epoch % 10 == 0 or epoch == num_epochs - 1:
             print(f"Epoch [{epoch+1}/{num_epochs}] - Loss: {avg_loss:.4f}, Accuracy: {accuracy:.2f}%")
     
@@ -202,13 +190,13 @@ def evaluate_model(model, test_loader, device):
 def get_safe_classification_report(actuals, predictions):
     """Generate classification report that handles missing classes"""
     try:
-        # Get unique classes present in the data
+        # unique classes present in the data
         unique_classes = sorted(set(list(actuals) + list(predictions)))
         
-        # Define target names for all possible classes
+        # Define target names 
         all_target_names = {0: 'Down', 1: 'Neutral', 2: 'Up'}
         
-        # Create target names only for present classes
+        # target names only for present classes
         present_target_names = [all_target_names.get(cls, f'Class_{cls}') for cls in unique_classes]
         
         if len(unique_classes) > 1:
@@ -248,7 +236,6 @@ def visualize_results(all_results, all_acts, all_preds, save_plots=True, config_
     ax1.set_ylim(0, 1)
     ax1.grid(True, alpha=0.3)
     
-    # Add accuracy values on bars
     for i, acc in enumerate(accuracies):
         ax1.text(i, acc + 0.02, f'{acc:.3f}', ha='center', va='bottom', fontweight='bold')
     
@@ -261,7 +248,6 @@ def visualize_results(all_results, all_acts, all_preds, save_plots=True, config_
         ax2.set_title('Final Training Loss by Fold')
         ax2.grid(True, alpha=0.3)
         
-        # Add value labels
         for i, loss in enumerate(train_losses):
             ax2.text(i, loss + max(train_losses)*0.02, f'{loss:.3f}', ha='center', va='bottom')
     else:
@@ -272,13 +258,11 @@ def visualize_results(all_results, all_acts, all_preds, save_plots=True, config_
     # 3. Confusion Matrix
     if all_acts and all_preds:
         try:
-            # Get unique classes
             unique_classes = sorted(set(list(all_acts) + list(all_preds)))
             class_names = {0: 'Down', 1: 'Neutral', 2: 'Up'}
             
             cm = confusion_matrix(all_acts, all_preds, labels=unique_classes)
             
-            # Create labels for present classes only
             labels = [class_names.get(cls, f'Class_{cls}') for cls in unique_classes]
             
             sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax3,
@@ -312,7 +296,6 @@ def visualize_results(all_results, all_acts, all_preds, save_plots=True, config_
     ax4.set_xticklabels([f'Fold {f}' for f in folds])
     ax4.grid(True, alpha=0.3)
     
-    # Add value labels on bars
     for bar in bars1:
         height = bar.get_height()
         if height > 0:
@@ -352,7 +335,6 @@ def analyze_training_results(all_results):
             'individual_accuracies': []
         }
     
-    # Calculate overall metrics
     accuracies = [r['accuracy'] for r in all_results]
     avg_accuracy = np.mean(accuracies)
     std_accuracy = np.std(accuracies)
@@ -362,7 +344,6 @@ def analyze_training_results(all_results):
     print(f"   Average accuracy: {avg_accuracy:.3f} ± {std_accuracy:.3f}")
     print(f"   Individual accuracies: {[round(acc, 3) for acc in accuracies]}")
     
-    # Compare to random baseline
     random_baseline = 1/3  # 33.33% for 3-class problem
     improvement = (avg_accuracy - random_baseline) / random_baseline * 100
     
@@ -381,7 +362,6 @@ def analyze_training_results(all_results):
         print("   Model does not beat random prediction")
         success = False
     
-    # Analyze predictions by fold
     print(f"\nDetailed Fold Analysis:")
     for result in all_results:
         print(f"   Fold {result['fold']}: {result['accuracy']:.3f} accuracy, "
@@ -456,13 +436,12 @@ def run_lstm_training(data, feature_cols, target_col, config):
         print(f"FOLD {fold}: {window_info['start_date'].strftime('%Y-%m-%d')} to {window_info['end_date'].strftime('%Y-%m-%d')}")
         print(f"{'='*60}")
         
-        # Separate features and target
         train_features = train_df[feature_cols]
         train_target = train_df[target_col]
         test_features = test_df[feature_cols]
         test_target = test_df[target_col]
         
-        # Scale ONLY features (not the target!)
+        # Scale ONLY features 
         scaler = StandardScaler()
         train_features_scaled = scaler.fit_transform(train_features)
         test_features_scaled = scaler.transform(test_features)
@@ -479,7 +458,6 @@ def run_lstm_training(data, feature_cols, target_col, config):
             columns=test_features.columns
         )
         
-        # Create datasets
         train_dataset = TimeSeriesWindowDataset(
             scaled_train_features, train_target, 
             seq_len=config['seq_len'], horizon=config['horizon']
@@ -496,39 +474,30 @@ def run_lstm_training(data, feature_cols, target_col, config):
             print("Insufficient data for this fold, skipping...")
             continue
         
-        # Get class weights for this fold
         fold_class_weights = train_dataset.get_class_weights()
         all_class_weights.append(fold_class_weights)
         
-        # Convert class weights to tensor
         weights_tensor = get_class_weights_tensor(fold_class_weights, device)
         
-        # Create DataLoaders
         train_loader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=False)
         test_loader = DataLoader(test_dataset, batch_size=config['batch_size'], shuffle=False)
         
-        # Initialize fresh model for each fold
         fold_model, fold_optimizer = create_model_and_optimizer(len(feature_cols), device, config)
         
-        # Model info
         total_params = sum(p.numel() for p in fold_model.parameters())
         print(f"Model parameters: {total_params:,}")
         
-        # Setup training for this fold
         fold_criterion = nn.CrossEntropyLoss(weight=weights_tensor)
         
         print(f"Class weights for fold {fold}: {weights_tensor.cpu().numpy()}")
         
-        # Train the model
         print(f"Training model for fold {fold}...")
         train_losses = train_model(fold_model, train_loader, fold_criterion, 
                                  fold_optimizer, device, config['num_epochs'])
         
-        # Evaluate the model
         print(f"Evaluating model for fold {fold}...")
         predictions, actuals = evaluate_model(fold_model, test_loader, device)
         
-        # Calculate metrics
         accuracy = accuracy_score(actuals, predictions)
         
         print(f"\nFOLD {fold} RESULTS:")
@@ -536,14 +505,12 @@ def run_lstm_training(data, feature_cols, target_col, config):
         print(f"   Predictions: {predictions}")
         print(f"   Actuals:     {actuals}")
         
-        # Safe classification report
         if len(set(actuals)) > 1:  # Only if we have multiple classes in test
             report = get_safe_classification_report(actuals, predictions)
             print(f"\nClassification Report:\n{report}")
         else:
             print("Only one class in test set - no classification report possible")
         
-        # Store results
         all_results.append({
             'fold': fold,
             'window_info': {
@@ -562,16 +529,13 @@ def run_lstm_training(data, feature_cols, target_col, config):
             'num_test_sequences': len(test_dataset)
         })
     
-    # Final Results Analysis
     print(f"\n{'='*80}")
     print("FINAL CROSS-VALIDATION RESULTS")
     print(f"{'='*80}")
     
     if all_results:
-        # Use the analysis function
         analysis = analyze_training_results(all_results)
         
-        # Calculate average class weights across all folds
         avg_weights = {}
         for class_id in [0, 1, 2]:
             weights = []
@@ -586,7 +550,6 @@ def run_lstm_training(data, feature_cols, target_col, config):
         print(f"   Neutral (1): {avg_weights.get(1, 0):.2f} <- Rare signals")
         print(f"   Up (2): {avg_weights.get(2, 0):.2f}")
         
-        # Combine all predictions for overall analysis
         all_preds = []
         all_acts = []
         for result in all_results:
@@ -601,18 +564,15 @@ def run_lstm_training(data, feature_cols, target_col, config):
             print(f"   Predicted: Down={pred_dist.get(0,0)}, Neutral={pred_dist.get(1,0)}, Up={pred_dist.get(2,0)}")
             print(f"   Actual:    Down={actual_dist.get(0,0)}, Neutral={actual_dist.get(1,0)}, Up={actual_dist.get(2,0)}")
             
-            # Overall classification report with safe handling
             if len(set(all_acts)) > 1:
                 overall_report = get_safe_classification_report(all_acts, all_preds)
                 print(f"\nOverall Classification Report:")
                 print(overall_report)
         
-        # Create visualizations with config-aware naming
         print(f"Creating visualizations...")
         visualize_results(all_results, all_acts, all_preds, save_plots=True, 
                          config_name=config_name, version=version)
         
-        # Save results with config-aware naming
         os.makedirs('results', exist_ok=True)
         results_output = {
             'config': config,
@@ -623,7 +583,6 @@ def run_lstm_training(data, feature_cols, target_col, config):
             'all_actuals': all_acts
         }
         
-        # Use config-specific filename if available
         if config_name and version:
             results_file = f'results/lstm_training_{config_name}_v{version}.json'
         else:
@@ -676,7 +635,6 @@ def standalone_training():
         'version': 1
     })
     
-    # Load and engineer features
     print("Loading and engineering features...")
     try:
         raw_data = download_fin_data(tickers=tickers, lookback_days=config['days'])
@@ -689,7 +647,6 @@ def standalone_training():
         print(f"Error loading data: {e}")
         return
     
-    # Run training
     results = run_lstm_training(data, feature_cols, target_col, config)
     
     if results:
